@@ -1,0 +1,139 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema wallet
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema wallet
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `wallet` DEFAULT CHARACTER SET utf8 ;
+USE `wallet` ;
+
+-- -----------------------------------------------------
+-- Table `wallet`.`Usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wallet`.`Usuarios` (
+  `idUsuarios` INT NOT NULL AUTO_INCREMENT,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `Correo` VARCHAR(45) NOT NULL,
+  `Contraseña` VARCHAR(45) NOT NULL,
+  `Saldo` DOUBLE NULL,
+  PRIMARY KEY (`idUsuarios`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `wallet`.`Transacción`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wallet`.`Transacción` (
+  `idTransacción` INT NOT NULL AUTO_INCREMENT,
+  `Sender_user_id` INT(10) NOT NULL,
+  `Receiver_user_id` INT(10) NOT NULL,
+  `Importe` INT(45) NOT NULL,
+  `Transaccióndate` DATE NOT NULL,
+  PRIMARY KEY (`idTransacción`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `wallet`.`Moneda`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wallet`.`Moneda` (
+  `Currency_name` VARCHAR(45) NULL,
+  `Currency_symbo` VARCHAR(45) NULL,
+  `Currency_id` INT(10) NOT NULL,
+  PRIMARY KEY (`Currency_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `wallet`.`Moneda_has_Transacción`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wallet`.`Moneda_has_Transacción` (
+  `Moneda_Currency_id` INT(10) NOT NULL,
+  `Transacción_idTransacción` INT NOT NULL,
+  PRIMARY KEY (`Moneda_Currency_id`, `Transacción_idTransacción`))
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+use wallet;
+select *from moneda;
+select *from transacción;
+select *from usuarios;
+select *from moneda_has_transacción;
+select *from moneda,transacción,usuarios,moneda_has_transacción;
+
+select *from moneda_has_transacciónmoneda_has_transacción;
+insert into moneda (currency_name, currency_symbo,currency_id)
+value ('dolares','usd',3);
+
+
+/*Consulta para obtener el nombre de la moneda elegida por un usuario específico*/
+
+SELECT
+usuarios.Nombre , Moneda.Currency_name AS Nombre_Moneda
+FROM usuarios
+inner join transacción on usuarios.idUsuarios = transacción.Sender_user_id
+inner join moneda_has_transacción on transacción.idTransacción = moneda_has_transacción.Transacción_idTransacción
+inner join Moneda on moneda_has_transacción.Moneda_Currency_id = Moneda.Currency_id
+where usuarios.idUsuarios = (1);
+
+
+
+
+
+
+
+
+
+
+
+/*consulta para obtener las transacciones realizadas por un usuario  específico*/
+SELECT
+concat('El nombre del usuario es : ',usuarios.Nombre , ' y el número de transacciones son: ',count(Sender_user_id))
+as Transacciones
+FROM usuarios
+inner join transacción on usuarios.idUsuarios = transacción.Sender_user_id
+where usuarios.idUsuarios=1;
+
+
+/*Consulta para obtener todos los usuarios registrados*/
+
+select *from usuarios;
+
+/*Consulta para obtener todas las monedas registradas*/
+
+select *from moneda order by Currency_name  asc;
+
+
+/*Consulta para obtener todas las transacciones registradas*/
+
+select *from transacción;
+
+/*Consulta para obtener todas las transacciones recibidas por un usuario específico*/
+
+SELECT
+concat('El nombre del usuario es : ',usuarios.Nombre , ' y el número de transacciones son: ',count(Receiver_user_id))
+as Transacciones
+FROM usuarios
+inner join transacción on usuarios.idUsuarios = transacción.Receiver_user_id
+where usuarios.idUsuarios=1;
+
+/*Sentencia DML para modificar el campo correo electrónico de un usuario específico*/
+UPDATE Usuarios SET Correo = "pedriño@gmail.com" WHERE idUsuarios = 1;
+
+/*Sentencia para eliminar los datos de una transacción (eliminado de la fila completa)*/
+ DELETE FROM Transacción WHERE idTransacción = 1;
+
+ /*Sentencia para DDL modificar el nombre de la columna correo_electronico por email*/
+ ALTER TABLE Usuarios
+CHANGE COLUMN Correo  email VARCHAR(50);
